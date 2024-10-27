@@ -6,54 +6,79 @@
     <title>Kassensystem</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
 </head>
 <body>
     <div id="app">
-        <!-- Linke Seite: Warenkorb -->
-        <div id="cart-section">
-            <h2>Warenkorb</h2>
-            <div id="total" class="highlighted-total">Gesamtbetrag: <span id="total_price">0.00</span> €</div>
-            <div id="cart-items"></div>
-            <button id="resetBtn" class="reset-btn">Reset</button>
-        </div>
-
-        <!-- Rechte Seite: Produkte und Eingabe -->
-        <div id="product-section">
-            <h2>Produkte</h2>
-            <div id="products">
-                {% for product, price in products.items() %}
-                    <button class="product-btn" data-name="{{ product }}" data-price="{{ price }}">
-                        <div class="product-name">{{ product }}</div>
-                        <div class="product-price">{{ "%.2f"|format(price) }} €</div>
+        <!-- Kopfzeile mit Benutzerwahl und Logout -->
+        <div id="header">
+            <div id="user-selection">
+                {% for user in users %}
+                    <button class="user-btn" data-user="{{ user }}">
+                        <span class="user-icon">👤</span> {{ user }}
                     </button>
                 {% endfor %}
             </div>
+            <!-- SVG Power-Off Icon für Logout -->
+            <button id="logoutBtn" class="logout-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" />
+                    <line x1="12" y1="5" x2="12" y2="12" stroke="white" stroke-width="2" />
+                </svg>
+            </button>
+        </div>
 
-            <!-- Button für letzten Artikel löschen -->
-            <button id="removeLastBtn" class="remove-last-btn">Letzter Artikel löschen</button>
 
-            <!-- Trennlinie -->
-            <hr>
+        <!-- Displaybereich links und rechts -->
+        <div id="main-display">
+            <!-- Linke Seite: Warenkorb -->
+            <div id="cart-section">
+                <h2>Warenkorb</h2>
+                <div id="total" class="highlighted-total">Gesamtbetrag: <span id="total_price">0.00</span> €</div>
+                <div id="cart-items"></div>
+                <button id="resetBtn" class="reset-btn">Reset</button>
+            </div>
 
-            <!-- Eingabebereich für Betrag -->
-            <div id="payment-section">
-                <h2>Bezahlung</h2>
-                <div>
-                    <label for="given_amount">Erhaltener Betrag:</label>
-                    <input type="number" id="given_amount" placeholder="0.00" />
+            <!-- Rechte Seite: Produkte und Eingabe -->
+            <div id="product-section">
+                <h2>Produkte</h2>
+                <div id="products">
+                    {% for product, price in products.items() %}
+                        <button class="product-btn" data-name="{{ product }}" data-price="{{ price }}">
+                            <div class="product-name">{{ product }}</div>
+                            <div class="product-price">{{ "%.2f"|format(price) }} €</div>
+                        </button>
+                    {% endfor %}
                 </div>
 
-                <!-- Geldschein-Buttons -->
-                <div id="notes">
-                    <button class="note-btn" data-amount="5">5 €</button>
-                    <button class="note-btn" data-amount="10">10 €</button>
-                    <button class="note-btn" data-amount="20">20 €</button>
-                    <button class="note-btn" data-amount="50">50 €</button>
-                    <button class="note-btn" data-amount="100">100 €</button>
-                    <button class="note-btn" data-amount="200">200 €</button>
-                </div>
+                <!-- Button für letzten Artikel löschen -->
+                <button id="removeLastBtn" class="remove-last-btn">Letzter Artikel löschen</button>
 
-                <button id="checkoutBtn">Checkout</button>
+                <!-- Trennlinie -->
+                <hr>
+
+                <!-- Eingabebereich für Betrag -->
+                <div id="payment-section">
+                    <h2>Bezahlung</h2>
+                    <div>
+                        <label for="given_amount">Erhaltener Betrag:</label>
+                        <input type="number" id="given_amount" placeholder="0.00" />
+                    </div>
+
+                    <!-- Geldschein-Buttons -->
+                    <div id="notes">
+                        <button class="note-btn" data-amount="5">5 €</button>
+                        <button class="note-btn" data-amount="10">10 €</button>
+                        <button class="note-btn" data-amount="20">20 €</button>
+                        <button class="note-btn" data-amount="50">50 €</button>
+                        <button class="note-btn" data-amount="100">100 €</button>
+                        <button class="note-btn" data-amount="200">200 €</button>
+                    </div>
+
+                    <button id="checkoutBtn">Checkout</button>
+                </div>
             </div>
         </div>
     </div>

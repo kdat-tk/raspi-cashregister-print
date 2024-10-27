@@ -10,7 +10,8 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS checkouts (
             checkout_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            checkout_datetime TEXT
+            checkout_datetime TEXT,
+            user TEXT
         )
     ''')
     cursor.execute('''
@@ -31,9 +32,11 @@ product_prices = {
     f"Produkt {i+1}": round(2.50 + (i * 0.50), 2) for i in range(16)
 }
 
+users = ["Admin", "Bedienung1", "Bedienung2", "Bedienung3", "Bedienung4"]
+
 @app.route('/')
 def index():
-    return render_template('index.html', products=product_prices)
+    return render_template('index.html', products=product_prices, users=users)
 
 @app.route('/checkout', methods=['POST'])
 def checkout():
@@ -41,23 +44,21 @@ def checkout():
     total_price = data.get('total_price')
     items = data.get('items')
     given_amount = data.get('given_amount')
+    user = data.get('user')
 
-    # Konsolenausgabe für jeden Artikel im Warenkorb
     print("Warenkorb:")
     for item in items:
         print(f"Produkt: {item['name']}")
         print(f"Preis: {float(item['price']):.2f} €")
 
-    # Rückgeld berechnen
     change = given_amount - total_price
     if change < 0:
         return jsonify({"error": "Erhaltener Betrag ist zu gering."}), 400
 
-    # Datenbank speichern
     conn = sqlite3.connect('cash_register.db')
     cursor = conn.cursor()
     checkout_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    cursor.execute('INSERT INTO checkouts (checkout_datetime) VALUES (?)', (checkout_datetime,))
+    cursor.execute('INSERT INTO checkouts (checkout_datetime, user) VALUES (?, ?)', (checkout_datetime, user))
     checkout_id = cursor.lastrowid
 
     for item in items:

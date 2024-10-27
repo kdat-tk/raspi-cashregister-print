@@ -1,9 +1,32 @@
 $(document).ready(function() {
     let cart = [];
     let totalPrice = 0;
+    let currentUser = null;
+
+    // Benutzer-Auswahl
+    $(".user-btn").click(function() {
+        // Entferne aktive Markierung von allen Benutzern und setze den ausgewählten Benutzer als aktiv
+        $(".user-btn").removeClass("active");
+        $(this).addClass("active");
+        currentUser = $(this).data("user");
+
+        enableCashRegisterButtons(); // Aktiviere Kassen-Buttons
+        resetCart(); // Setze den aktuellen Kassenvorgang zurück
+    });
+
+    // Logout-Button
+    $("#logoutBtn").click(function() {
+        // Entferne Aktivierung von allen Benutzern, setze currentUser auf null und deaktiviere Kassen-Buttons
+        $(".user-btn").removeClass("active");
+        currentUser = null;
+        disableCashRegisterButtons();
+        resetCart();
+    });
 
     // Produkt hinzufügen
     $(".product-btn").click(function() {
+        if (!currentUser) return; // Nur ausführen, wenn ein Benutzer aktiv ist
+
         let itemName = $(this).data("name");
         let itemPrice = parseFloat($(this).data("price")).toFixed(2);
 
@@ -14,6 +37,8 @@ $(document).ready(function() {
 
     // Geldschein-Button hinzufügen
     $(".note-btn").click(function() {
+        if (!currentUser) return; // Nur ausführen, wenn ein Benutzer aktiv ist
+
         let amount = parseFloat($(this).data("amount"));
         let currentAmount = parseFloat($("#given_amount").val()) || 0;
         $("#given_amount").val((currentAmount + amount).toFixed(2));
@@ -21,8 +46,11 @@ $(document).ready(function() {
 
     // Checkout
     $("#checkoutBtn").click(function() {
+        if (!currentUser) return; // Nur ausführen, wenn ein Benutzer aktiv ist
+
         let givenAmount = parseFloat($("#given_amount").val());
 
+        // Überprüfen, ob der gegebene Betrag gültig ist
         if (isNaN(givenAmount) || givenAmount < totalPrice) {
             alert("Bitte geben Sie einen gültigen Betrag ein.");
             return;
@@ -33,9 +61,9 @@ $(document).ready(function() {
             url: "/checkout",
             method: "POST",
             contentType: "application/json",
-            data: JSON.stringify({ total_price: totalPrice, items: cart, given_amount: givenAmount }),
+            data: JSON.stringify({ total_price: totalPrice, items: cart, given_amount: givenAmount, user: currentUser }),
             success: function(response) {
-                showPopup(response.change.toFixed(2));
+                showPopup(response.change.toFixed(2)); // Rückgeld im Popup anzeigen
                 resetCart();
             },
             error: function(response) {
@@ -45,13 +73,11 @@ $(document).ready(function() {
     });
 
     // Reset
-    $("#resetBtn").click(function() {
-        resetCart();
-    });
+    $("#resetBtn").click(resetCart);
 
     // Letzter Artikel löschen
     $("#removeLastBtn").click(function() {
-        if (cart.length > 0) {
+        if (cart.length > 0 && currentUser) { // Nur ausführen, wenn ein Benutzer aktiv ist
             let lastItem = cart.shift();
             totalPrice -= parseFloat(lastItem.price);
             updateCart();
@@ -83,4 +109,17 @@ $(document).ready(function() {
     $("#close-popup").click(function() {
         $("#change-popup").fadeOut();
     });
+
+    // Kassen-Buttons aktivieren
+    function enableCashRegisterButtons() {
+        $(".product-btn, .note-btn, #checkoutBtn, .remove-last-btn, #resetBtn").prop("disabled", false).css("opacity", 1);
+    }
+
+    // Kassen-Buttons deaktivieren
+    function disableCashRegisterButtons() {
+        $(".product-btn, .note-btn, #checkoutBtn, .remove-last-btn, #resetBtn").prop("disabled", true).css("opacity", 0.5);
+    }
+
+    // Initial deaktivierte Kassen-Buttons
+    disableCashRegisterButtons();
 });

@@ -1,3 +1,4 @@
+/* Allgemeine Einstellungen */
 body {
     font-family: Arial, sans-serif;
     display: flex;
@@ -6,25 +7,81 @@ body {
 
 #app {
     display: flex;
+    flex-direction: column;
     width: 90%;
     max-width: 1200px;
 }
 
-#cart-section, #product-section {
-    padding: 20px;
-    box-sizing: border-box;
+/* Kopfzeile */
+#header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #f3f3f3;
+    border-bottom: 2px solid #ddd;
+}
+
+#user-selection {
+    display: flex;
+    gap: 10px;
+}
+
+.user-btn {
+    display: flex;
+    align-items: center;
+    font-size: 1em;
+    padding: 8px 12px;
+    background-color: #9E9E9E;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.user-btn .user-icon {
+    margin-right: 5px;
+}
+
+.user-btn.active {
+    background-color: #4CAF50;
+}
+
+#logoutBtn {
+    background-color: #d32f2f;
+    border: none;
+    border-radius: 5px;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#logoutBtn svg {
+    width: 1.5em;
+    height: 1.5em;
+}
+
+
+/* Zweispaltiges Layout */
+#main-display {
+    display: flex;
 }
 
 #cart-section {
     flex: 1;
+    padding: 20px;
     border-right: 2px solid #ddd;
     margin-right: 20px;
 }
 
 #product-section {
     flex: 2;
+    padding: 20px;
 }
 
+/* Produkt-Buttons */
 #products {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -59,126 +116,22 @@ body {
     background-color: #45a049;
 }
 
-#payment-section {
-    margin-top: 20px;
+/* Deaktivierungslogik */
+.product-btn, .note-btn, .remove-last-btn, #checkoutBtn, .reset-btn {
+    opacity: 1;
+    pointer-events: auto;
 }
 
-#notes {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.note-btn {
-    font-size: 1em;
-    padding: 15px;
-    background-color: #2196F3;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.note-btn:hover {
-    background-color: #1e87e0;
-}
-
-#checkoutBtn {
-    width: 100%;
-    font-size: 1.2em;
-    padding: 15px;
-    background-color: #f44336;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 20px;
-}
-
-#checkoutBtn:hover {
-    background-color: #d32f2f;
-}
-
-.reset-btn {
-    width: 100%;
-    font-size: 1.2em;
-    padding: 15px;
-    background-color: #d32f2f;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.reset-btn:hover {
-    background-color: #b71c1c;
-}
-
-/* Neuer Button zum Entfernen des letzten Artikels */
-.remove-last-btn {
-    width: 100%;
-    font-size: 1.1em;
-    padding: 10px;
-    background-color: #9E9E9E;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 15px;
-}
-
-.remove-last-btn:hover {
-    background-color: #7E7E7E;
-}
-
-/* Stil für hervorgehobenen Gesamtbetrag */
-.highlighted-total {
-    font-size: 1.5em;
-    color: #ffffff;
-    background-color: #ff9800;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
-    margin-bottom: 15px;
+.user-btn:not(.active) ~ #main-display .product-btn,
+.user-btn:not(.active) ~ #main-display .note-btn,
+.user-btn:not(.active) ~ #main-display #checkoutBtn,
+.user-btn:not(.active) ~ #main-display .remove-last-btn,
+.user-btn:not(.active) ~ #main-display .reset-btn {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 /* Popup-Stil für Rückgeld */
-.popup-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-}
-
-.popup-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-}
-
-#close-popup {
-    margin-top: 10px;
-    padding: 8px 16px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-
-
-/* Styling für das Popup-Overlay und die Inhalte */
 .popup-overlay {
     display: none;
     position: fixed;
@@ -222,4 +175,86 @@ body {
     cursor: pointer;
     border-radius: 5px;
     font-size: 1em;
+}
+
+/* Rückgeld-Buttons */
+#notes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.note-btn {
+    font-size: 1em;
+    padding: 15px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.note-btn:hover {
+    background-color: #1e87e0;
+}
+
+/* Restliche Buttons */
+.reset-btn {
+    width: 100%;
+    font-size: 1.2em;
+    padding: 15px;
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.reset-btn:hover {
+    background-color: #b71c1c;
+}
+
+.remove-last-btn {
+    width: 100%;
+    font-size: 1.1em;
+    padding: 10px;
+    background-color: #9E9E9E;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.remove-last-btn:hover {
+    background-color: #7E7E7E;
+}
+
+#checkoutBtn {
+    width: 100%;
+    font-size: 1.2em;
+    padding: 15px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px; /* Abstand zu den Rückgeld-Buttons */
+}
+
+#checkoutBtn:hover {
+    background-color: #d32f2f;
+}
+
+
+/* Warenkorb */
+.highlighted-total {
+    font-size: 1.5em;
+    color: #ffffff;
+    background-color: #ff9800;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    margin-bottom: 15px;
 }
