@@ -9,11 +9,64 @@
 </head>
 <body>
     <div id="app">
-        <div id="total">Gesamtbetrag: <span id="total_price">0.00</span> €</div>
-        <button id="checkoutBtn">Checkout</button>
-        <!-- Hier können weitere Elemente für die Kassenoberfläche hinzugefügt werden -->
+        <!-- Linke Seite: Warenkorb -->
+        <div id="cart-section">
+            <h2>Warenkorb</h2>
+            <div id="total" class="highlighted-total">Gesamtbetrag: <span id="total_price">0.00</span> €</div>
+            <div id="cart-items"></div>
+            <button id="resetBtn" class="reset-btn">Reset</button>
+        </div>
+
+        <!-- Rechte Seite: Produkte und Eingabe -->
+        <div id="product-section">
+            <h2>Produkte</h2>
+            <div id="products">
+                {% for product, price in products.items() %}
+                    <button class="product-btn" data-name="{{ product }}" data-price="{{ price }}">
+                        <div class="product-name">{{ product }}</div>
+                        <div class="product-price">{{ "%.2f"|format(price) }} €</div>
+                    </button>
+                {% endfor %}
+            </div>
+
+            <!-- Button für letzten Artikel löschen -->
+            <button id="removeLastBtn" class="remove-last-btn">Letzter Artikel löschen</button>
+
+            <!-- Trennlinie -->
+            <hr>
+
+            <!-- Eingabebereich für Betrag -->
+            <div id="payment-section">
+                <h2>Bezahlung</h2>
+                <div>
+                    <label for="given_amount">Erhaltener Betrag:</label>
+                    <input type="number" id="given_amount" placeholder="0.00" />
+                </div>
+
+                <!-- Geldschein-Buttons -->
+                <div id="notes">
+                    <button class="note-btn" data-amount="5">5 €</button>
+                    <button class="note-btn" data-amount="10">10 €</button>
+                    <button class="note-btn" data-amount="20">20 €</button>
+                    <button class="note-btn" data-amount="50">50 €</button>
+                    <button class="note-btn" data-amount="100">100 €</button>
+                    <button class="note-btn" data-amount="200">200 €</button>
+                </div>
+
+                <button id="checkoutBtn">Checkout</button>
+            </div>
+        </div>
     </div>
+
+    <!-- Popup-Overlay für Rückgeld -->
+    <div id="change-popup" class="popup-overlay">
+        <div class="popup-content">
+            <h2>Rückgeld</h2>
+            <p><span id="change-amount"></span> €</p>
+            <button id="close-popup">Schließen</button>
+        </div>
+    </div>
+
     <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>
-

@@ -1,10 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, jsonify
 from datetime import datetime
 import sqlite3
 
 app = Flask(__name__)
 
-# Datenbank initialisieren
 def init_db():
     conn = sqlite3.connect('cash_register.db')
     cursor = conn.cursor()
@@ -28,18 +27,26 @@ def init_db():
 
 init_db()
 
-# Startseite mit HTML-UI laden
+product_prices = {
+    f"Produkt {i+1}": round(2.50 + (i * 0.50), 2) for i in range(16)
+}
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', products=product_prices)
 
-# API für Checkout-Transaktion
 @app.route('/checkout', methods=['POST'])
 def checkout():
     data = request.get_json()
     total_price = data.get('total_price')
     items = data.get('items')
     given_amount = data.get('given_amount')
+
+    # Konsolenausgabe für jeden Artikel im Warenkorb
+    print("Warenkorb:")
+    for item in items:
+        print(f"Produkt: {item['name']}")
+        print(f"Preis: {float(item['price']):.2f} €")
 
     # Rückgeld berechnen
     change = given_amount - total_price
@@ -62,5 +69,4 @@ def checkout():
     return jsonify({"change": change, "total_price": total_price, "items": items, "given_amount": given_amount})
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
-
+    app.run(host='0.0.0.0', port=5000)
