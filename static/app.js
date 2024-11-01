@@ -3,20 +3,30 @@ $(document).ready(function() {
     let totalPrice = 0;
     let currentUser = null;
 
-    // Eventlistener zur Überprüfung des aktuellen Benutzers und Aktivierung des Admin-Buttons
-    fetch('/current_user')
-        .then(response => response.json())
-        .then(data => {
-            if (data.current_user === "Admin") {
-                // Alle Benutzer-Buttons deaktivieren
-                $(".user-btn").removeClass("active");
-                // Admin-Button aktivieren
-                $("#admin-btn").addClass("active");
-                currentUser = "Admin";
-                enableCashRegisterButtons();
-            }
-        })
-        .catch(error => console.error('Fehler beim Abrufen des aktuellen Benutzers:', error));
+    // Funktion zum Abrufen des aktuellen Benutzers
+    function fetchCurrentUser() {
+        fetch('/current_user')
+            .then(response => response.json())
+            .then(data => {
+                handleNfcTagRead(data.current_user);
+            })
+            .catch(error => console.error('Fehler beim Abrufen des aktuellen Benutzers:', error));
+    }
+
+    // Funktion, die aufgerufen wird, wenn ein NFC-Tag gelesen wird
+    function handleNfcTagRead(userId) {
+        // Deaktiviere alle Benutzer-Buttons
+        $(".user-btn").removeClass("active");
+
+        // Aktiviere den entsprechenden Benutzer-Button
+        const button = $(`.user-btn[data-user="${userId}"]`);
+        if (button.length) {
+            button.addClass("active");
+            currentUser = userId;
+            enableCashRegisterButtons();
+            resetCart();
+        }
+    }
 
     // Benutzer-Auswahl
     $(".user-btn").click(function() {
@@ -147,6 +157,6 @@ $(document).ready(function() {
         $(".product-btn, .note-btn, #checkoutBtn, .remove-last-btn, #resetBtn").prop("disabled", true).css("opacity", 0.5);
     }
 
-    // Initial deaktivierte Kassen-Buttons
-    disableCashRegisterButtons();
+    // NFC Tag lesen (optional)
+    // fetchCurrentUser();  // Entkommentiere dies, um beim Laden der Seite zu testen oder binde es an ein Ereignis
 });

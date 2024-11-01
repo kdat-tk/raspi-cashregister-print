@@ -16,7 +16,7 @@
         <div id="header">
             <div id="user-selection">
                 {% for user in users %}
-                    <button class="user-btn" data-user="{{ user }}">
+                    <button class="user-btn" id="user-{{ user }}" data-user="{{ user }}">
                         <span class="user-icon">👤</span> {{ user }}
                     </button>
                 {% endfor %}
