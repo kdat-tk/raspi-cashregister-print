@@ -99,7 +99,7 @@ def print_receipt(club_name, product_name, price):
             ser.write(b'\n' * 2)
 
             # ESC/POS-Befehl zum Abschneiden des Bons
-            ser.write(b'\x1D\x56\x00')  # GS V 0
+            ser.write(b'\x1Bm')  # ESC m
 
             print(f"Bondruck gesendet:\n{club_name}\n{product_name}\n{price:>9.2f} EUR")
         except serial.SerialException as e:
