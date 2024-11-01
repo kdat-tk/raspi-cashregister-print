@@ -3,6 +3,8 @@ from datetime import datetime
 import serial
 import sqlite3
 from mfrc522 import SimpleMFRC522
+import RPi.GPIO as GPIO
+import time
 import threading
 
 app = Flask(__name__)
