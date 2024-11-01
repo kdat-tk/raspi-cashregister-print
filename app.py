@@ -77,26 +77,23 @@ def print_receipt(club_name, product_name, price):
             # ESC/POS-Befehl zum Initialisieren des Druckers
             ser.write(b'\x1B\x40')  # ESC @
 
-            # Abstand einfügen
-            ser.write(b'\n' * 2)
-
             # Vereinsname zentriert drucken
-            header = f"{club_name}\n"
             ser.write(b'\x1B\x61\x01')  # ESC a 1 (zentrierte Ausrichtung)
-            ser.write(header.encode('ascii'))
+            ser.write(f"{club_name}\n".encode('ascii'))
+
+            # Ausrichtung auf linksbündig zurücksetzen
+            ser.write(b'\x1B\x61\x00')  # ESC a 0 (linksbündige Ausrichtung)
 
             # Abstand einfügen
             ser.write(b'\n' * 2)
 
             # Produktname in doppelter Schriftgröße und zentriert drucken
             ser.write(b'\x1D\x21\x11')  # GS ! 17 (doppelte Höhe und Breite)
-            product_line = f"{product_name}\n"
-            ser.write(product_line.encode('ascii'))
+            ser.write(f"{product_name}\n".encode('ascii'))
             ser.write(b'\x1D\x21\x00')  # GS ! 0 (Standardgröße)
 
             # Preis rechtsbündig drucken
-            price_line = f"{price:>9.2f} EUR\n"
-            ser.write(price_line.encode('ascii'))
+            ser.write(f"{price:>9.2f} EUR\n".encode('ascii'))
 
             # Abstand einfügen
             ser.write(b'\n' * 2)
@@ -104,7 +101,7 @@ def print_receipt(club_name, product_name, price):
             # ESC/POS-Befehl zum Abschneiden des Bons
             ser.write(b'\x1D\x56\x00')  # GS V 0
 
-            print(f"Bondruck gesendet:\n{header}{product_line}{price_line}")
+            print(f"Bondruck gesendet:\n{club_name}\n{product_name}\n{price:>9.2f} EUR")
         except serial.SerialException as e:
             print(f"Fehler beim Bondruck: {e}")
     else:
