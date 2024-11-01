@@ -86,7 +86,7 @@ def print_receipt(club_name, product_name, price):
 
             # Produktname in doppelter Schriftgröße und zentriert drucken
             ser.write(b'\x1D\x21\x11')  # GS ! 17 (doppelte Höhe und Breite)
-            ser.write(f"{product_name}\n".encode('ascii'))
+            ser.write(f" {product_name}\n".encode('ascii'))
             ser.write(b'\x1D\x21\x00')  # GS ! 0 (Standardgröße)
 
             # Preis rechtsbündig drucken
