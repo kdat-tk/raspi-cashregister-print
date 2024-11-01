@@ -5,6 +5,14 @@ import sqlite3
 
 app = Flask(__name__)
 
+# Initialisiere das serielle Interface beim Start der App
+try:
+    ser = serial.Serial('/dev/ttyUSB2', 38400, timeout=1, dsrdtr=True)
+    print("Serielles Interface erfolgreich geöffnet.")
+except serial.SerialException as e:
+    ser = None
+    print(f"Fehler beim Öffnen des seriellen Interfaces: {e}")
+
 
 def init_db():
     conn = sqlite3.connect('cash_register.db')
@@ -32,7 +40,6 @@ def init_db():
 init_db()
 
 # === Konfigurationsbereich für Produkte ===
-# Produktname, Preis und Bondruck-Eigenschaft (True für positive Preise, False für negative)
 products = [
     {"name": "Produkt 1", "price": 2.50, "bondruck": True},
     {"name": "Produkt 2", "price": 3.00, "bondruck": True},
@@ -63,8 +70,8 @@ def index():
 
 # Funktion zum Ausführen des Bondrucks auf der seriellen Konsole
 def print_receipt(product_name, price):
-    try:
-        with serial.Serial('/dev/ttyUSB2', 38400, timeout=1, dsrdtr=True) as ser:
+    if ser is not None and ser.is_open:
+        try:
             # Vier New Lines vor der Produktinformation senden
             ser.write(b'\n' * 4)
 
@@ -80,9 +87,11 @@ def print_receipt(product_name, price):
 
             # ASCII Escape-Zeichen zum Abschneiden des Bons
             ser.write(b'\x1Bm')
-        print(f"Bondruck gesendet: {output.strip()}")
-    except serial.SerialException as e:
-        print(f"Fehler beim Bondruck: {e}")
+            print(f"Bondruck gesendet: {output.strip()}")
+        except serial.SerialException as e:
+            print(f"Fehler beim Bondruck: {e}")
+    else:
+        print("Serielles Interface ist nicht geöffnet. Kein Bondruck möglich.")
 
 
 @app.route('/checkout', methods=['POST'])
