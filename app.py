@@ -118,7 +118,7 @@ def read_nfc():
                 # Vergleiche die NFC-ID mit der Benutzerliste
                 user_found = next((user for user in users if user["nfc_id"] == str(id)), None)
                 if user_found:
-                    current_user = user_found["name"]  # Setze den aktuellen Benutzer auf den gefundenen Namen
+                    current_user = user_found["nfc_id"]  # Setze den aktuellen Benutzer auf den gefundenen Namen
                     print(f"{current_user} aktiviert.")
                 else:
                     print("Unbekannter Benutzer.")
