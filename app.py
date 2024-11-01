@@ -102,6 +102,9 @@ def print_receipt(club_name, product_name, price):
             ser.write(b'\x1B\x61\x01')  # ESC a 1 (zentrierte Ausrichtung)
             ser.write("Vielen Dank!\n".encode('ascii'))
 
+            # Abstand einfügen
+            ser.write(b'\n' * 2)
+
             # Ausrichtung auf linksbündig zurücksetzen
             ser.write(b'\x1B\x61\x00')  # ESC a 0 (linksbündige Ausrichtung)
 
