@@ -60,6 +60,8 @@ products = [
 ]
 # === Ende des Konfigurationsbereichs ===
 
+club_name = "Oldtimerfreunde Forst e.V."
+
 users = ["Admin", "Bedienung1", "Bedienung2", "Bedienung3", "Bedienung4"]
 
 
@@ -69,25 +71,36 @@ def index():
 
 
 # Funktion zum Ausführen des Bondrucks auf der seriellen Konsole
-def print_receipt(product_name, price):
+def print_receipt(club_name, product_name, price):
     if ser is not None and ser.is_open:
         try:
-            # Vier New Lines vor der Produktinformation senden
-            ser.write(b'\n' * 4)
+            # ESC/POS-Befehl zum Initialisieren des Druckers
+            ser.write(b'\x1B\x40')  # ESC @
 
-            # Produktname und Preis vorbereiten, Euro-Symbol durch "EUR" ersetzen
-            output = f"{product_name} | {price:.2f} €\n"
-            output = output.replace("€", "EUR")  # Ersetzen des Euro-Symbols
+            # Vereinsname zentriert drucken
+            header = f"{club_name}\n"
+            ser.write(header.encode('ascii'))
 
-            # ASCII-kodierten Text senden
-            ser.write(output.encode('ascii'))
+            # Abstand einfügen
+            ser.write(b'\n' * 2)
 
-            # Vier New Lines vor dem Abschneiden des Bons senden
-            ser.write(b'\n' * 4)
+            # Produktname in doppelter Schriftgröße und zentriert drucken
+            ser.write(b'\x1D\x21\x11')  # GS ! 17 (doppelte Höhe und Breite)
+            product_line = f"{product_name}\n"
+            ser.write(product_line.encode('ascii'))
+            ser.write(b'\x1D\x21\x00')  # GS ! 0 (Standardgröße)
 
-            # ASCII Escape-Zeichen zum Abschneiden des Bons
-            ser.write(b'\x1Bm')
-            print(f"Bondruck gesendet: {output.strip()}")
+            # Preis rechtsbündig drucken
+            price_line = f"{price:>9.2f} EUR\n"
+            ser.write(price_line.encode('ascii'))
+
+            # Abstand einfügen
+            ser.write(b'\n' * 2)
+
+            # ESC/POS-Befehl zum Abschneiden des Bons
+            ser.write(b'\x1D\x56\x00')  # GS V 0
+
+            print(f"Bondruck gesendet:\n{header}{product_line}{price_line}")
         except serial.SerialException as e:
             print(f"Fehler beim Bondruck: {e}")
     else:
