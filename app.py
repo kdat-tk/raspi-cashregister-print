@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from datetime import datetime
+import serial
 import sqlite3
 
 app = Flask(__name__)
@@ -31,7 +32,7 @@ def init_db():
 init_db()
 
 # === Konfigurationsbereich für Produkte ===
-# Produkte mit Namen, Preis und Bondruck-Eigenschaft (automatisch gesetzt basierend auf Preis)
+# Produktname, Preis und Bondruck-Eigenschaft (True für positive Preise, False für negative)
 products = [
     {"name": "Produkt 1", "price": 2.50, "bondruck": True},
     {"name": "Produkt 2", "price": 3.00, "bondruck": True},
@@ -60,9 +61,18 @@ def index():
     return render_template('index.html', products=products, users=users)
 
 
-# Funktion zum Ausführen des Bondrucks
+# Funktion zum Ausführen des Bondrucks auf der seriellen Konsole
 def print_receipt(product_name, price):
-    print(f"Bondruck | {product_name} | {price:.2f} €")
+    try:
+        with serial.Serial('/dev/ttyUSB2', 38400, timeout=1) as ser:
+            # Produktname und Preis im ASCII-Format senden
+            output = f"{product_name} | {price:.2f} €\n"
+            ser.write(output.encode('ascii'))
+            # ASCII Escape-Zeichen zum Abschneiden des Bons
+            ser.write(b'\x1Bm')
+        print(f"Bondruck gesendet: {output.strip()}")
+    except serial.SerialException as e:
+        print(f"Fehler beim Bondruck: {e}")
 
 
 @app.route('/checkout', methods=['POST'])
