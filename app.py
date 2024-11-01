@@ -122,7 +122,7 @@ def checkout():
         # Bondruck für das Produkt ausführen, falls bondruck auf True gesetzt ist
         product = next((p for p in products if p["name"] == item["name"]), None)
         if product and product["bondruck"]:
-            print_receipt(product["name"], product["price"])
+            print_receipt(club_name, product["name"], product["price"])
 
     # Berechne das Rückgeld abhängig vom Gesamtbetrag
     if total_price < 0:
