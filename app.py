@@ -65,18 +65,24 @@ def index():
 def print_receipt(product_name, price):
     try:
         with serial.Serial('/dev/ttyUSB2', 38400, timeout=1, dsrdtr=True) as ser:
+            # Vier New Lines vor der Produktinformation senden
+            ser.write(b'\n' * 4)
+
             # Produktname und Preis vorbereiten, Euro-Symbol durch "EUR" ersetzen
             output = f"{product_name} | {price:.2f} €\n"
             output = output.replace("€", "EUR")  # Ersetzen des Euro-Symbols
 
             # ASCII-kodierten Text senden
             ser.write(output.encode('ascii'))
+
+            # Vier New Lines vor dem Abschneiden des Bons senden
+            ser.write(b'\n' * 4)
+
             # ASCII Escape-Zeichen zum Abschneiden des Bons
             ser.write(b'\x1Bm')
         print(f"Bondruck gesendet: {output.strip()}")
     except serial.SerialException as e:
         print(f"Fehler beim Bondruck: {e}")
-
 
 
 @app.route('/checkout', methods=['POST'])
