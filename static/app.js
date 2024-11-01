@@ -3,6 +3,21 @@ $(document).ready(function() {
     let totalPrice = 0;
     let currentUser = null;
 
+    // Eventlistener zur Überprüfung des aktuellen Benutzers und Aktivierung des Admin-Buttons
+    fetch('/current_user')
+        .then(response => response.json())
+        .then(data => {
+            if (data.current_user === "Admin") {
+                // Alle Benutzer-Buttons deaktivieren
+                $(".user-btn").removeClass("active");
+                // Admin-Button aktivieren
+                $("#admin-btn").addClass("active");
+                currentUser = "Admin";
+                enableCashRegisterButtons();
+            }
+        })
+        .catch(error => console.error('Fehler beim Abrufen des aktuellen Benutzers:', error));
+
     // Benutzer-Auswahl
     $(".user-btn").click(function() {
         $(".user-btn").removeClass("active");

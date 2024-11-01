@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, jsonify
 from datetime import datetime
 import serial
 import sqlite3
+from mfrc522 import SimpleMFRC522
+import threading
 
 app = Flask(__name__)
 
@@ -13,6 +15,11 @@ except serial.SerialException as e:
     ser = None
     print(f"Fehler beim Öffnen des seriellen Interfaces: {e}")
 
+# Initialisiere den NFC-Reader
+reader = SimpleMFRC522()
+
+# Variable, um den aktiven Benutzer zu verfolgen
+current_user = None
 
 def init_db():
     conn = sqlite3.connect('cash_register.db')
@@ -35,7 +42,6 @@ def init_db():
     ''')
     conn.commit()
     conn.close()
-
 
 init_db()
 
@@ -64,56 +70,55 @@ club_name = "Oldtimerfreunde Forst e.V."
 
 users = ["Admin", "Bedienung1", "Bedienung2", "Bedienung3", "Bedienung4"]
 
-
 @app.route('/')
 def index():
-    return render_template('index.html', products=products, users=users)
-
+    return render_template('index.html', products=products, users=users, current_user=current_user)
 
 # Funktion zum Ausführen des Bondrucks auf der seriellen Konsole
 def print_receipt(club_name, product_name, price):
     if ser is not None and ser.is_open:
         try:
-            # Vereinsname zentriert drucken
             ser.write(b'\x1B\x61\x01')  # ESC a 1 (zentrierte Ausrichtung)
             ser.write(f"{club_name}\n".encode('ascii'))
-
-            # Ausrichtung auf linksbündig zurücksetzen
             ser.write(b'\x1B\x61\x00')  # ESC a 0 (linksbündige Ausrichtung)
-
-            # Abstand einfügen
             ser.write(b'\n')
-
-            # Produktname in doppelter Schriftgröße und zentriert drucken
             ser.write(b'\x1D\x21\x11')  # GS ! 17 (doppelte Höhe und Breite)
             ser.write(f" {product_name}\n".encode('ascii'))
             ser.write(b'\x1D\x21\x00')  # GS ! 0 (Standardgröße)
-
-            # Preis rechtsbündig drucken
             ser.write(f"{price:>9.2f} EUR\n".encode('ascii'))
-
-            # Abstand einfügen
             ser.write(b'\n')
-
-            # "Vielen Dank!" zentriert drucken
             ser.write(b'\x1B\x61\x01')  # ESC a 1 (zentrierte Ausrichtung)
             ser.write("Vielen Dank!\n".encode('ascii'))
-
-            # Abstand einfügen
             ser.write(b'\n' * 4)
-
-            # Ausrichtung auf linksbündig zurücksetzen
             ser.write(b'\x1B\x61\x00')  # ESC a 0 (linksbündige Ausrichtung)
-
-            # ESC/POS-Befehl zum Abschneiden des Bons
             ser.write(b'\x1Bm')  # ESC m
-
             print(f"Bondruck gesendet:\n{club_name}\n{product_name}\n{price:>9.2f} EUR\nVielen Dank!")
         except serial.SerialException as e:
             print(f"Fehler beim Bondruck: {e}")
     else:
         print("Serielles Interface ist nicht geöffnet. Kein Bondruck möglich.")
 
+# Funktion zum Auslesen der NFC-ID
+def read_nfc():
+    global current_user
+    while True:
+        try:
+            print("Warte auf NFC-Tag...")
+            id, text = reader.read()
+            if id:
+                print(f"NFC-Tag erkannt: {id}")
+                current_user = "Admin"
+                print("Admin-Benutzer aktiviert.")
+        except Exception as e:
+            print(f"Fehler beim Lesen des NFC-Tags: {e}")
+
+# Starte den NFC-Lesethread
+nfc_thread = threading.Thread(target=read_nfc, daemon=True)
+nfc_thread.start()
+
+@app.route('/current_user', methods=['GET'])
+def get_current_user():
+    return jsonify({"current_user": current_user})
 
 @app.route('/checkout', methods=['POST'])
 def checkout():
@@ -132,15 +137,13 @@ def checkout():
         if product and product["bondruck"]:
             print_receipt(club_name, product["name"], product["price"])
 
-    # Berechne das Rückgeld abhängig vom Gesamtbetrag
     if total_price < 0:
-        change = total_price  # Negativer Gesamtbetrag wird als Rückgeld angezeigt
+        change = total_price
     else:
         change = given_amount - total_price
         if change < 0:
             return jsonify({"error": "Erhaltener Betrag ist zu gering."}), 400
 
-    # Checkout in der Datenbank speichern
     conn = sqlite3.connect('cash_register.db')
     cursor = conn.cursor()
     checkout_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -154,7 +157,6 @@ def checkout():
     conn.close()
 
     return jsonify({"change": change, "total_price": total_price, "items": items, "given_amount": given_amount})
-
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
