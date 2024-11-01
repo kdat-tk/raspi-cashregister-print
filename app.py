@@ -70,7 +70,13 @@ products = [
 
 club_name = "Oldtimerfreunde Forst e.V."
 
-users = ["Admin", "Bedienung1", "Bedienung2", "Bedienung3", "Bedienung4"]
+users = [
+    {"name": "Admin", "nfc_id": "27460418333"},
+    {"name": "Bedienung1", "nfc_id": "nfc_bedienung1_id"},
+    {"name": "Bedienung2", "nfc_id": "nfc_bedienung2_id"},
+    {"name": "Bedienung3", "nfc_id": "nfc_bedienung3_id"},
+    {"name": "Bedienung4", "nfc_id": "nfc_bedienung4_id"},
+]
 
 @app.route('/')
 def index():
@@ -106,16 +112,14 @@ def read_nfc():
     while True:
         try:
             print("Warte auf NFC-Tag...")
-            id, text = reader.read()  # ID und Text des NFC-Tags lesen
+            id, text = reader.read()  # NFC-Tag wird hier gelesen
             if id:
                 print(f"NFC-Tag erkannt: {id}")
-                # Beispiel: Überprüfen, ob die ID einer Benutzer-ID entspricht
-                if str(id) in users:  # angenommen, die IDs sind in der users-Liste
-                    #current_user = str(id)  # Setze den aktuellen Benutzer auf die gelesene ID
-                    current_user = str(id)  # Setze den aktuellen Benutzer auf die gelesene ID
+                # Vergleiche die NFC-ID mit der Benutzerliste
+                user_found = next((user for user in users if user["nfc_id"] == str(id)), None)
+                if user_found:
+                    current_user = user_found["name"]  # Setze den aktuellen Benutzer auf den gefundenen Namen
                     print(f"{current_user} aktiviert.")
-                    ### TEST
-                    current_user = "Admin"
                 else:
                     print("Unbekannter Benutzer.")
         except Exception as e:
@@ -124,6 +128,11 @@ def read_nfc():
 # Starte den NFC-Lesethread
 nfc_thread = threading.Thread(target=read_nfc, daemon=True)
 nfc_thread.start()
+
+@app.route('/users', methods=['GET'])
+def get_users():
+    return jsonify(users)
+
 
 @app.route('/current_user', methods=['GET'])
 def get_current_user():

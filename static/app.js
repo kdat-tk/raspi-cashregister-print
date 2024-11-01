@@ -3,26 +3,26 @@ $(document).ready(function() {
     let totalPrice = 0;
     let currentUser = null;
 
-    // Funktion zum Abrufen des aktuellen Benutzers
-    function fetchCurrentUser() {
-        fetch('/current_user')
+    // Funktion zum Abrufen der Benutzer und deren IDs
+    function fetchUsers() {
+        fetch('/users')
             .then(response => response.json())
             .then(data => {
-                handleNfcTagRead(data.current_user);
+                // Optional: Hier könntest du die Benutzer-Buttons dynamisch hinzufügen, falls nötig
             })
-            .catch(error => console.error('Fehler beim Abrufen des aktuellen Benutzers:', error));
+            .catch(error => console.error('Fehler beim Abrufen der Benutzer:', error));
     }
 
     // Funktion, die aufgerufen wird, wenn ein NFC-Tag gelesen wird
-    function handleNfcTagRead(userId) {
+    function handleNfcTagRead(nfcId) {
         // Deaktiviere alle Benutzer-Buttons
         $(".user-btn").removeClass("active");
 
-        // Aktiviere den entsprechenden Benutzer-Button
-        const button = $(`.user-btn[data-user="${userId}"]`);
+        // Aktiviere den entsprechenden Benutzer-Button basierend auf der NFC-ID
+        const button = $(`.user-btn[data-nfc-id="${nfcId}"]`);
         if (button.length) {
             button.addClass("active");
-            currentUser = userId;
+            currentUser = button.data("user"); // Setze den aktuellen Benutzer basierend auf dem Button
             enableCashRegisterButtons();
             resetCart();
         }
@@ -157,6 +157,6 @@ $(document).ready(function() {
         $(".product-btn, .note-btn, #checkoutBtn, .remove-last-btn, #resetBtn").prop("disabled", true).css("opacity", 0.5);
     }
 
-    // NFC Tag lesen (optional)
-    // fetchCurrentUser();  // Entkommentiere dies, um beim Laden der Seite zu testen oder binde es an ein Ereignis
+    // Benutzer beim Laden der Seite abrufen (optional)
+    // fetchUsers();  // Entkommentiere dies, um die Benutzer beim Laden abzurufen
 });
