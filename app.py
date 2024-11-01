@@ -87,10 +87,13 @@ def print_receipt(club_name, product_name, price):
             # Ausrichtung auf linksbündig zurücksetzen
             ser.write(b'\x1B\x61\x00')  # ESC a 0 (linksbündige Ausrichtung)
 
-            # Produktname mit Einzug nach rechts
-            ser.write(b'\x1B\x44\x02')  # ESC D 2 (Einzug von 2 Zeichen)
+            # Abstand einfügen
+            ser.write(b'\n')
+
+            # Produktname in doppelter Schriftgröße und zentriert drucken
+            ser.write(b'\x1D\x21\x11')  # GS ! 17 (doppelte Höhe und Breite)
             ser.write(f"{product_name}\n".encode('ascii'))
-            ser.write(b'\x1B\x44\x00')  # ESC D 0 (Einzug zurücksetzen)
+            ser.write(b'\x1D\x21\x00')  # GS ! 0 (Standardgröße)
 
             # Preis rechtsbündig drucken
             ser.write(f"{price:>9.2f} EUR\n".encode('ascii'))
