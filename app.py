@@ -64,7 +64,7 @@ def index():
 # Funktion zum Ausführen des Bondrucks auf der seriellen Konsole
 def print_receipt(product_name, price):
     try:
-        with serial.Serial('/dev/ttyUSB2', 38400, timeout=1) as ser:
+        with serial.Serial('/dev/ttyUSB2', 38400, timeout=1, dsrdtr=True) as ser:
             # Produktname und Preis vorbereiten, Euro-Symbol durch "EUR" ersetzen
             output = f"{product_name} | {price:.2f} €\n"
             output = output.replace("€", "EUR")  # Ersetzen des Euro-Symbols
