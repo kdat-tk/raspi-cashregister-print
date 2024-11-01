@@ -1,3 +1,5 @@
 Flask==2.1.1
 Werkzeug==2.2.2
 pyserial==3.5
+spidev==3.6
+mfrc522==0.0.7
