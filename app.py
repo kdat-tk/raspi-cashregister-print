@@ -77,8 +77,12 @@ def print_receipt(club_name, product_name, price):
             # ESC/POS-Befehl zum Initialisieren des Druckers
             ser.write(b'\x1B\x40')  # ESC @
 
+            # Abstand einfügen
+            ser.write(b'\n' * 2)
+
             # Vereinsname zentriert drucken
             header = f"{club_name}\n"
+            ser.write(b'\x1B\x61\x01')  # ESC a 1 (zentrierte Ausrichtung)
             ser.write(header.encode('ascii'))
 
             # Abstand einfügen
