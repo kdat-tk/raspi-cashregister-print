@@ -5,18 +5,16 @@ $(document).ready(function() {
 
     // Benutzer-Auswahl
     $(".user-btn").click(function() {
-        // Entferne aktive Markierung von allen Benutzern und setze den ausgewählten Benutzer als aktiv
         $(".user-btn").removeClass("active");
         $(this).addClass("active");
         currentUser = $(this).data("user");
 
-        enableCashRegisterButtons(); // Aktiviere Kassen-Buttons
-        resetCart(); // Setze den aktuellen Kassenvorgang zurück
+        enableCashRegisterButtons();
+        resetCart();
     });
 
     // Logout-Button
     $("#logoutBtn").click(function() {
-        // Entferne Aktivierung von allen Benutzern, setze currentUser auf null und deaktiviere Kassen-Buttons
         $(".user-btn").removeClass("active");
         currentUser = null;
         disableCashRegisterButtons();
@@ -25,7 +23,7 @@ $(document).ready(function() {
 
     // Produkt hinzufügen
     $(".product-btn").click(function() {
-        if (!currentUser) return; // Nur ausführen, wenn ein Benutzer aktiv ist
+        if (!currentUser) return;
 
         let itemName = $(this).data("name");
         let itemPrice = parseFloat($(this).data("price")).toFixed(2);
@@ -37,7 +35,7 @@ $(document).ready(function() {
 
     // Geldschein-Button hinzufügen
     $(".note-btn").click(function() {
-        if (!currentUser) return; // Nur ausführen, wenn ein Benutzer aktiv ist
+        if (!currentUser) return;
 
         let amount = parseFloat($(this).data("amount"));
         let currentAmount = parseFloat($("#given_amount").val()) || 0;
@@ -46,47 +44,61 @@ $(document).ready(function() {
 
     // Checkout
     $("#checkoutBtn").click(function() {
-        if (!currentUser) return; // Nur ausführen, wenn ein Benutzer aktiv ist
+        if (!currentUser) return;
 
         let givenAmount = parseFloat($("#given_amount").val());
 
-        // Überprüfen, ob der gegebene Betrag gültig ist
-        if (isNaN(givenAmount) || givenAmount < totalPrice) {
-            alert("Bitte geben Sie einen gültigen Betrag ein.");
-            return;
+        // Überprüfen, ob ein negativer Gesamtbetrag vorliegt
+        if (totalPrice < 0) {
+            // Bei negativem Gesamtbetrag wird kein Rückgeld benötigt
+            performCheckout(givenAmount, totalPrice);
+        } else {
+            // Normaler Checkout mit Rückgeldprüfung
+            if (isNaN(givenAmount) || givenAmount < totalPrice) {
+                alert("Bitte geben Sie einen gültigen Betrag ein.");
+                return;
+            }
+            performCheckout(givenAmount, totalPrice - givenAmount);
         }
+    });
 
-        // Daten an den Server senden und Rückgeld anzeigen
+    // Funktion für den Checkout-Prozess
+    function performCheckout(givenAmount, change) {
         $.ajax({
             url: "/checkout",
             method: "POST",
             contentType: "application/json",
             data: JSON.stringify({ total_price: totalPrice, items: cart, given_amount: givenAmount, user: currentUser }),
             success: function(response) {
-                showPopup(response.change.toFixed(2)); // Rückgeld im Popup anzeigen
+                showPopup(change.toFixed(2));
                 resetCart();
             },
             error: function(response) {
                 alert(response.responseJSON.error);
             }
         });
-    });
+    }
 
     // Reset
     $("#resetBtn").click(resetCart);
 
     // Letzter Artikel löschen
     $("#removeLastBtn").click(function() {
-        if (cart.length > 0 && currentUser) { // Nur ausführen, wenn ein Benutzer aktiv ist
+        if (cart.length > 0 && currentUser) {
             let lastItem = cart.shift();
             totalPrice -= parseFloat(lastItem.price);
             updateCart();
         }
     });
 
+    // Rückgeldbetrag zurücksetzen
+    $("#clearAmountBtn").click(function() {
+        $("#given_amount").val("0.00");
+    });
+
     // Warenkorb aktualisieren
     function updateCart() {
-        let cartHtml = cart.map(item => `${item.name} - ${parseFloat(item.price).toFixed(2)} €`).join("<br>");
+        let cartHtml = cart.map(item => `${item.name} | ${parseFloat(item.price).toFixed(2)} €`).join("<br>");
         $("#cart-items").html(cartHtml);
         $("#total_price").text(totalPrice.toFixed(2));
     }

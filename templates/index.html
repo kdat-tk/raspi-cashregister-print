@@ -37,18 +37,19 @@
             <div id="cart-section">
                 <h2>Warenkorb</h2>
                 <div id="total" class="highlighted-total">Gesamtbetrag: <span id="total_price">0.00</span> €</div>
-                <div id="cart-items"></div>
+                <div id="cart-items"></div> <!-- Log-Bereich für gekaufte Produkte -->
                 <button id="resetBtn" class="reset-btn">Reset</button>
             </div>
+
 
             <!-- Rechte Seite: Produkte und Eingabe -->
             <div id="product-section">
                 <h2>Produkte</h2>
                 <div id="products">
-                    {% for product, price in products.items() %}
-                        <button class="product-btn" data-name="{{ product }}" data-price="{{ price }}">
-                            <div class="product-name">{{ product }}</div>
-                            <div class="product-price">{{ "%.2f"|format(price) }} €</div>
+                    {% for product in products %}
+                        <button class="product-btn {{ 'negative' if product.price < 0 }}" data-name="{{ product.name }}" data-price="{{ product.price }}">
+                            <div class="product-name">{{ product.name }}</div>
+                            <div class="product-price">{{ "%.2f"|format(product.price) }} €</div>
                         </button>
                     {% endfor %}
                 </div>
@@ -65,10 +66,13 @@
                     <div>
                         <label for="given_amount">Erhaltener Betrag:</label>
                         <input type="number" id="given_amount" placeholder="0.00" />
+                        <button id="clearAmountBtn" class="clear-amount-btn">✕</button>
                     </div>
 
                     <!-- Geldschein-Buttons -->
                     <div id="notes">
+                        <button class="note-btn" data-amount="1">1 €</button>
+                        <button class="note-btn" data-amount="2">2 €</button>
                         <button class="note-btn" data-amount="5">5 €</button>
                         <button class="note-btn" data-amount="10">10 €</button>
                         <button class="note-btn" data-amount="20">20 €</button>

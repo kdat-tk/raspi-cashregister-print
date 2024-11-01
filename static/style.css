@@ -116,6 +116,11 @@ body {
     background-color: #45a049;
 }
 
+.product-btn.negative .product-price {
+    color: red;
+}
+
+
 /* Deaktivierungslogik */
 .product-btn, .note-btn, .remove-last-btn, #checkoutBtn, .reset-btn {
     opacity: 1;
@@ -180,7 +185,7 @@ body {
 /* Rückgeld-Buttons */
 #notes {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr); /* Vier Spalten für eine zweizeilige Anordnung */
     gap: 10px;
     margin-top: 10px;
 }
@@ -198,6 +203,7 @@ body {
 .note-btn:hover {
     background-color: #1e87e0;
 }
+
 
 /* Restliche Buttons */
 .reset-btn {
@@ -235,16 +241,16 @@ body {
     width: 100%;
     font-size: 1.2em;
     padding: 15px;
-    background-color: #f44336;
+    background-color: #4CAF50; /* Grüner Hintergrund */
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    margin-top: 10px; /* Abstand zu den Rückgeld-Buttons */
+    margin-top: 10px; /* Leichter Abstand zu den Rückgeld-Buttons */
 }
 
 #checkoutBtn:hover {
-    background-color: #d32f2f;
+    background-color: #45a049; /* Dunkleres Grün beim Hover */
 }
 
 
@@ -257,4 +263,25 @@ body {
     border-radius: 5px;
     text-align: center;
     margin-bottom: 15px;
+}
+
+
+#amount-input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#clearAmountBtn {
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 6px 10px;
+}
+
+#clearAmountBtn:hover {
+    background-color: #b71c1c;
 }
