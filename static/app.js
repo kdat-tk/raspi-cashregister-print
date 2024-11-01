@@ -28,6 +28,35 @@ $(document).ready(function() {
         }
     }
 
+    // Funktion zum Abrufen des aktuellen Benutzers
+    function fetchCurrentUser() {
+        fetch('/current_user')
+            .then(response => response.json())
+            .then(data => {
+                if (data.current_user) {
+                    handleNfcTagRead(data.current_user); // Benutzer aktivieren
+                } else {
+                    currentUser = null; // Setze den aktuellen Benutzer auf null
+                    disableAllUsers(); // Deaktiviere alle Benutzer, wenn keiner bekannt ist
+                }
+            })
+            .catch(error => {
+                console.error('Fehler beim Abrufen des aktuellen Benutzers:', error);
+            });
+    }
+
+    // Funktion, um alle Benutzer zu deaktivieren
+    function disableAllUsers() {
+        $(".user-btn").removeClass("active"); // Alle Benutzerbuttons deaktivieren
+        disableCashRegisterButtons(); // Kassen-Buttons deaktivieren
+    }
+
+    // Initialisiere die Anwendung
+    function initializeApp() {
+        disableCashRegisterButtons(); // Deaktiviere alle Kassen-Buttons beim Start
+        fetchUsers(); // (Optional) Benutzer beim Start abrufen
+    }
+
     // Benutzer-Auswahl
     $(".user-btn").click(function() {
         $(".user-btn").removeClass("active");
@@ -157,6 +186,9 @@ $(document).ready(function() {
         $(".product-btn, .note-btn, #checkoutBtn, .remove-last-btn, #resetBtn").prop("disabled", true).css("opacity", 0.5);
     }
 
-    // Benutzer beim Laden der Seite abrufen (optional)
-    // fetchUsers();  // Entkommentiere dies, um die Benutzer beim Laden abzurufen
+    // Initialisiere die Anwendung
+    initializeApp(); // Setze beim Laden der Seite die Anwendung in den Ausgangszustand
+
+    // Alle 3 Sekunden den aktuellen Benutzer abrufen
+    setInterval(fetchCurrentUser, 3000);
 });
