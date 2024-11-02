@@ -123,8 +123,9 @@ def read_nfc():
                     print(f"{current_user} aktiviert.")
                 else:
                     print("Unbekannter Benutzer.")
+                    current_user = None
             else:
-                current_user = ""
+                current_user = None
         except Exception as e:
             print(f"Fehler beim Lesen des NFC-Tags: {e}")
 
