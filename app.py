@@ -9,6 +9,7 @@ from mfrc522 import SimpleMFRC522
 import threading
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 # Initialisiere das serielle Interface beim Start der App
 try:
