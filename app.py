@@ -21,7 +21,7 @@ except serial.SerialException as e:
 # Initialisiere den NFC-Reader
 reader = SimpleMFRC522()
 
-global current_user = None
+current_user = None
 
 
 def init_db():
