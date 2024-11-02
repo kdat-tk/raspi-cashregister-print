@@ -27,17 +27,23 @@ $(document).ready(function() {
 
     // Funktion, um die NFC-ID vom Backend abzurufen
     function fetchActiveNfc() {
-        fetch('/active_nfc',{ signal: AbortSignal.timeout(300) })
+        fetch('/active_nfc')
             .then(response => response.json())
             .then(data => {
-                if (data.current_user) {
+                if (data.active_nfc_id) {
                     // Überprüfe, ob sich die NFC-ID geändert hat
-                    if (data.current_user !== currentUserNfcId) {
-                        currentUserNfcId = data.current_user; // Setze die neue NFC-ID
+                    if (data.active_nfc_id !== currentUserNfcId) {
+                        // Neue NFC-ID erkannt
+                        currentUserNfcId = data.active_nfc_id; // Setze die neue NFC-ID
                         handleNfcTagRead(currentUserNfcId); // Aktiviere den Benutzer
+                    } else {
+                        // NFC-ID hat sich nicht geändert, nur die Buttons aktivieren
+                        enableCashRegisterButtons(); // Buttons aktivieren
                     }
                 } else {
-                    disableAllUsers(); // Deaktiviere alle Benutzer, wenn keiner bekannt ist
+                    // Wenn keine NFC-ID erkannt wurde
+                    console.log("Keine NFC-ID erkannt.");
+                    disableCashRegisterButtons(); // Deaktiviere alle Kassen-Buttons
                 }
             })
             .catch(error => {
@@ -57,6 +63,10 @@ $(document).ready(function() {
             currentUser = button.data("user"); // Setze den aktuellen Benutzer basierend auf dem Button
             enableCashRegisterButtons(); // Aktiviere die Kassen-Buttons
             resetCart(); // Setze den Warenkorb zurück
+        } else {
+            // Wenn der Benutzer nicht existiert, setze die Transaktion zurück
+            console.log("Unbekannter Benutzer. Transaktion zurücksetzen.");
+            resetCart(); // Setze die Transaktion zurück
         }
     }
 
@@ -73,7 +83,7 @@ $(document).ready(function() {
     }
 
     // Benutzer-Auswahl
-    $(".user-btn").click(function() {
+    $(document).on('click', '.user-btn', function() {
         $(".user-btn").removeClass("active");
         $(this).addClass("active");
         currentUser = $(this).data("user");
@@ -201,7 +211,7 @@ $(document).ready(function() {
         $(".product-btn, .note-btn, #checkoutBtn, .remove-last-btn, #resetBtn").prop("disabled", true).css("opacity", 0.5);
     }
 
-    // Starte die Abfrage der aktiven NFC-ID alle 1 Sekunde
+    // Starte die Abfrage der aktiven NFC-ID alle 2 Sekunden
     setInterval(fetchActiveNfc, 2000);
 
     // Initialisiere die Anwendung
