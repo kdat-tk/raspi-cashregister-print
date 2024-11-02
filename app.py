@@ -22,6 +22,7 @@ except serial.SerialException as e:
 reader = SimpleMFRC522()
 
 current_user = None
+active_nfc_id = None
 
 
 def init_db():
@@ -108,29 +109,58 @@ def print_receipt(club_name, product_name, price):
         print("Serielles Interface ist nicht geöffnet. Kein Bondruck möglich.")
 
 
-# Funktion zum Auslesen der NFC-ID
-def active_nfc():
-    global current_user
-    id, text = reader.read_no_block()  # Non-blocking read
-    if id:
-        print(f"NFC-Tag erkannt: {id}")
-        user_found = next((user for user in users if user["nfc_id"] == str(id)), None)
-        if user_found:
-            current_user = user_found["nfc_id"]  # Setze den aktuellen Benutzer auf den gefundenen Namen
-        else:
-            print("Unbekannter Benutzer.")
-            current_user = None
-    else:
-        print("Kein Tag erkannt.")
-        current_user = None
+def read_nfc():
+    global active_nfc_id, timer
+    while True:
+        try:
+            print("Warte auf NFC-Tag...")  # Informiere, dass auf ein Tag gewartet wird
 
-    return current_user  # Gibt den aktuellen Benutzer zurück
+            start_time = time.time()  # Starte den Timer
+            id, text = reader.read()  # Blockiert, bis ein Tag gelesen wird
+
+            print(f"NFC-Tag erkannt: {id}")
+            if id:
+                # Setze die aktive NFC-ID
+                active_nfc_id = str(id)
+                print(f"Aktive NFC-ID gesetzt: {active_nfc_id}")
+
+                # Benutzersuche basierend auf der NFC-ID
+                user_found = next((user for user in users if user["nfc_id"] == active_nfc_id), None)
+                if user_found:
+                    global current_user
+                    current_user = user_found["name"]  # Setze den aktuellen Benutzer auf den gefundenen Namen
+                    print(f"{current_user} aktiviert.")
+                else:
+                    print("Unbekannter Benutzer.")
+                    current_user = None
+
+                # Timer zurücksetzen, wenn eine ID gelesen wird
+                if timer:
+                    timer.cancel()
+                timer = threading.Timer(2.0, reset_active_nfc_id)  # Setze den Timer auf 2 Sekunden
+                timer.start()  # Starte den Timer
+
+            else:
+                print("Kein Tag erkannt.")
+
+        except Exception as e:
+            print(f"Fehler beim Lesen des NFC-Tags: {e}")
+
+
+def reset_active_nfc_id():
+    global active_nfc_id
+    active_nfc_id = None
+    print("Aktive NFC-ID wurde auf None gesetzt.")
+
+
+# Starte den NFC-Lesethread
+nfc_thread = threading.Thread(target=read_nfc, daemon=True)
+nfc_thread.start()
 
 
 @app.route('/active_nfc', methods=['GET'])
 def get_active_nfc():
-    user = active_nfc()  # Ruft die aktive NFC-Funktion auf
-    return jsonify({"current_user": user})
+    return jsonify({"current_user": active_nfc_id})
 
 
 @app.route('/users', methods=['GET'])
