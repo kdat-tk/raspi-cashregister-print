@@ -111,7 +111,7 @@ def read_nfc():
     global current_user
     while True:
         try:
-            sleep(2)
+            time.sleep(2)
             print("Warte auf NFC-Tag...")
             id, text = reader.read()  # NFC-Tag wird hier gelesen
             if id:
