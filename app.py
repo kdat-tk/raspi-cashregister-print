@@ -23,6 +23,7 @@ reader = SimpleMFRC522()
 
 current_user = None
 active_nfc_id = None
+timer = None
 
 
 def init_db():
