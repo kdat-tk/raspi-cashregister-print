@@ -108,6 +108,7 @@ def print_receipt(club_name, product_name, price):
     else:
         print("Serielles Interface ist nicht geöffnet. Kein Bondruck möglich.")
 
+
 # Funktion zum Auslesen der NFC-ID
 def read_nfc():
     global current_user
@@ -118,7 +119,7 @@ def read_nfc():
 
             # Blockiere, bis ein NFC-Tag erkannt wird oder 1 Sekunde vergangen ist
             while True:
-                id, text = reader.read()  # Versuche, den Tag zu lesen
+                id, text = reader.read_no_block()  # Versuche, den Tag ohne Blockierung zu lesen
                 if id:  # Wenn ein Tag erkannt wurde
                     print(f"NFC-Tag erkannt: {id}")
                     # Vergleiche die NFC-ID mit der Benutzerliste
@@ -140,6 +141,8 @@ def read_nfc():
                     current_user = None
                     socketio.emit('user_changed', {'current_user': current_user})  # Informiere das Frontend
                     break  # Breche die innere Schleife ab, da kein Tag erkannt wurde
+
+                time.sleep(0.1)  # Kurze Pause, um die CPU-Belastung zu verringern
 
         except Exception as e:
             print(f"Fehler beim Lesen des NFC-Tags: {e}")
