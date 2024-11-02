@@ -128,7 +128,7 @@ def read_nfc():
             else:
                 print("Kein Tag")
                 current_user = None
-            socketio.emit('user_changed', {'current_user': current_user})
+            #socketio.emit('user_changed', {'current_user': current_user})
             time.sleep(0.5)
         except Exception as e:
             print(f"Fehler beim Lesen des NFC-Tags: {e}")
