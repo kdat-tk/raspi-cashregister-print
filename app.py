@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+from flask_socketio import SocketIO, emit
 from datetime import datetime
 import serial
 import sqlite3
@@ -127,6 +128,7 @@ def read_nfc():
             else:
                 print("Kein Tag")
                 current_user = None
+            socketio.emit('user_changed', {'current_user': current_user})
         except Exception as e:
             print(f"Fehler beim Lesen des NFC-Tags: {e}")
 

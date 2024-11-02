@@ -3,6 +3,9 @@ $(document).ready(function() {
     let totalPrice = 0;
     let currentUser = null;
 
+    // Socket.IO-Verbindung herstellen
+    const socket = io();
+
     // Funktion zum Abrufen der Benutzer und deren IDs
     function fetchUsers() {
         fetch('/users')
@@ -21,29 +24,21 @@ $(document).ready(function() {
         // Aktiviere den entsprechenden Benutzer-Button basierend auf der NFC-ID
         const button = $(`.user-btn[data-nfc-id="${nfcId}"]`);
         if (button.length) {
-            button.addClass("active");
+            button.addClass("active"); // Aktiviere den Button für den aktuellen Benutzer
             currentUser = button.data("user"); // Setze den aktuellen Benutzer basierend auf dem Button
-            enableCashRegisterButtons();
-            resetCart();
+            enableCashRegisterButtons(); // Aktiviere die Kassen-Buttons
+            resetCart(); // Setze den Warenkorb zurück
         }
     }
 
-    // Funktion zum Abrufen des aktuellen Benutzers
-    function fetchCurrentUser() {
-        fetch('/current_user')
-            .then(response => response.json())
-            .then(data => {
-                if (data.current_user) {
-                    handleNfcTagRead(data.current_user); // Benutzer aktivieren
-                } else {
-                    currentUser = null; // Setze den aktuellen Benutzer auf null
-                    disableAllUsers(); // Deaktiviere alle Benutzer, wenn keiner bekannt ist
-                }
-            })
-            .catch(error => {
-                console.error('Fehler beim Abrufen des aktuellen Benutzers:', error);
-            });
-    }
+    // Funktion, die bei einer Änderung des aktuellen Benutzers aufgerufen wird
+    socket.on('user_changed', function(data) {
+        if (data.current_user) {
+            handleNfcTagRead(data.current_user); // Aktiviere den Benutzer
+        } else {
+            disableAllUsers(); // Deaktiviere alle Benutzer, wenn keiner bekannt ist
+        }
+    });
 
     // Funktion, um alle Benutzer zu deaktivieren
     function disableAllUsers() {
@@ -188,7 +183,4 @@ $(document).ready(function() {
 
     // Initialisiere die Anwendung
     initializeApp(); // Setze beim Laden der Seite die Anwendung in den Ausgangszustand
-
-    // Alle 3 Sekunden den aktuellen Benutzer abrufen
-    setInterval(fetchCurrentUser, 3000);
 });
