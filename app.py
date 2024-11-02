@@ -113,23 +113,34 @@ def read_nfc():
     global current_user
     while True:
         try:
-            #print("Warte auf NFC-Tag...")
-            id, text = reader.read_no_block()  # NFC-Tag wird hier gelesen
-            if id:
-                print(f"NFC-Tag erkannt: {id}")
-                # Vergleiche die NFC-ID mit der Benutzerliste
-                user_found = next((user for user in users if user["nfc_id"] == str(id)), None)
-                if user_found:
-                    current_user = user_found["nfc_id"]  # Setze den aktuellen Benutzer auf den gefundenen Namen
-                    print(f"{current_user} aktiviert.")
-                else:
-                    print("Unbekannter Benutzer.")
+            print("Warte auf NFC-Tag...")  # Informiere, dass auf ein Tag gewartet wird
+            start_time = time.time()  # Starte den Timer
+
+            # Blockiere, bis ein NFC-Tag erkannt wird oder 1 Sekunde vergangen ist
+            while True:
+                id, text = reader.read()  # Versuche, den Tag zu lesen
+                if id:  # Wenn ein Tag erkannt wurde
+                    print(f"NFC-Tag erkannt: {id}")
+                    # Vergleiche die NFC-ID mit der Benutzerliste
+                    user_found = next((user for user in users if user["nfc_id"] == str(id)), None)
+                    if user_found:
+                        current_user = user_found["nfc_id"]  # Setze den aktuellen Benutzer auf den gefundenen Namen
+                        print(f"{current_user} aktiviert.")
+                    else:
+                        print("Unbekannter Benutzer.")
+                        current_user = None
+
+                    # Sende die aktuelle Benutzerinformation über WebSockets
+                    socketio.emit('user_changed', {'current_user': current_user})
+                    break  # Breche die innere Schleife ab, wenn ein Tag erkannt wurde
+
+                # Überprüfe, ob 1 Sekunde vergangen ist
+                if time.time() - start_time >= 1:
+                    print("Kein NFC-Tag erkannt, setze current_user auf None.")
                     current_user = None
-            else:
-                print("Kein Tag")
-                current_user = None
-            #socketio.emit('user_changed', {'current_user': current_user})
-            time.sleep(0.5)
+                    socketio.emit('user_changed', {'current_user': current_user})  # Informiere das Frontend
+                    break  # Breche die innere Schleife ab, da kein Tag erkannt wurde
+
         except Exception as e:
             print(f"Fehler beim Lesen des NFC-Tags: {e}")
 
