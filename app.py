@@ -122,6 +122,7 @@ def active_nfc():
             current_user = None
     else:
         print("Kein Tag erkannt.")
+        current_user = None
 
     return current_user  # Gibt den aktuellen Benutzer zurück
 
