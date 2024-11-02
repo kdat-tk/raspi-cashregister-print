@@ -33,6 +33,7 @@ $(document).ready(function() {
 
     // Funktion, die bei einer Änderung des aktuellen Benutzers aufgerufen wird
     socket.on('user_changed', function(data) {
+        console.log("Benutzerstatus geändert:", data.current_user); // Debugging-Ausgabe
         if (data.current_user) {
             handleNfcTagRead(data.current_user); // Aktiviere den Benutzer
         } else {
