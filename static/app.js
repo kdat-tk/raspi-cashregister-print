@@ -3,8 +3,6 @@ $(document).ready(function() {
     let totalPrice = 0;
     let currentUser = null;
 
-    // Socket.IO-Verbindung herstellen
-    const socket = io();
 
     // Funktion zum Abrufen der Benutzer und deren IDs
     function fetchUsers() {
@@ -14,6 +12,22 @@ $(document).ready(function() {
                 // Optional: Hier könntest du die Benutzer-Buttons dynamisch hinzufügen, falls nötig
             })
             .catch(error => console.error('Fehler beim Abrufen der Benutzer:', error));
+    }
+
+    // Funktion, um die NFC-ID vom Backend abzurufen
+    function fetchActiveNfc() {
+        fetch('/active_nfc')
+            .then(response => response.json())
+            .then(data => {
+                if (data.current_user) {
+                    handleNfcTagRead(data.current_user); // Aktiviere den Benutzer
+                } else {
+                    disableAllUsers(); // Deaktiviere alle Benutzer, wenn keiner bekannt ist
+                }
+            })
+            .catch(error => {
+                console.error('Fehler beim Abrufen der aktiven NFC:', error);
+            });
     }
 
     // Funktion, die aufgerufen wird, wenn ein NFC-Tag gelesen wird
@@ -31,15 +45,6 @@ $(document).ready(function() {
         }
     }
 
-    // Funktion, die bei einer Änderung des aktuellen Benutzers aufgerufen wird
-    socket.on('user_changed', function(data) {
-        console.log("Benutzerstatus geändert:", data.current_user); // Debugging-Ausgabe
-        if (data.current_user) {
-            handleNfcTagRead(data.current_user); // Aktiviere den Benutzer
-        } else {
-            disableAllUsers(); // Deaktiviere alle Benutzer, wenn keiner bekannt ist
-        }
-    });
 
     // Funktion, um alle Benutzer zu deaktivieren
     function disableAllUsers() {
@@ -181,6 +186,9 @@ $(document).ready(function() {
     function disableCashRegisterButtons() {
         $(".product-btn, .note-btn, #checkoutBtn, .remove-last-btn, #resetBtn").prop("disabled", true).css("opacity", 0.5);
     }
+
+    // Starte die Abfrage der aktiven NFC-ID alle 1 Sekunde
+    setInterval(fetchActiveNfc, 1000);
 
     // Initialisiere die Anwendung
     initializeApp(); // Setze beim Laden der Seite die Anwendung in den Ausgangszustand

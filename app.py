@@ -9,7 +9,6 @@ from mfrc522 import SimpleMFRC522
 import threading
 
 app = Flask(__name__)
-socketio = SocketIO(app)
 
 # Initialisiere das serielle Interface beim Start der App
 try:
@@ -110,41 +109,33 @@ def print_receipt(club_name, product_name, price):
 
 
 # Funktion zum Auslesen der NFC-ID
-def read_nfc():
+def active_nfc():
     global current_user
-    while True:
-        try:
-            print("Warte auf NFC-Tag...")  # Informiere, dass auf ein Tag gewartet wird
-            id, text = reader.read()  # Blockiert, bis ein Tag gelesen wird
+    id, text = reader.read_no_block()  # Non-blocking read
+    if id:
+        print(f"NFC-Tag erkannt: {id}")
+        user_found = next((user for user in users if user["nfc_id"] == str(id)), None)
+        if user_found:
+            current_user = user_found["nfc_id"]  # Setze den aktuellen Benutzer auf den gefundenen Namen
+        else:
+            print("Unbekannter Benutzer.")
+            current_user = None
+    else:
+        print("Kein Tag erkannt.")
 
-            print(f"NFC-Tag erkannt: {id}")
-            # Vergleiche die NFC-ID mit der Benutzerliste
-            user_found = next((user for user in users if user["nfc_id"] == str(id)), None)
-            if user_found:
-                current_user = user_found["nfc_id"]  # Setze den aktuellen Benutzer auf den gefundenen Namen
-                print(f"{current_user} aktiviert.")
-            else:
-                print("Unbekannter Benutzer.")
-                current_user = None
+    return current_user  # Gibt den aktuellen Benutzer zurück
 
-            # Sende die aktuelle Benutzerinformation über WebSockets
-            socketio.emit('user_changed', {'current_user': current_user})  # Informiere das Frontend
 
-        except Exception as e:
-            print(f"Fehler beim Lesen des NFC-Tags: {e}")
+@app.route('/active_nfc', methods=['GET'])
+def get_active_nfc():
+    user = active_nfc()  # Ruft die aktive NFC-Funktion auf
+    return jsonify({"current_user": user})
 
-# Starte den NFC-Lesethread
-nfc_thread = threading.Thread(target=read_nfc, daemon=True)
-nfc_thread.start()
 
 @app.route('/users', methods=['GET'])
 def get_users():
     return jsonify(users)
 
-
-@app.route('/current_user', methods=['GET'])
-def get_current_user():
-    return jsonify({"current_user": current_user})
 
 @app.route('/checkout', methods=['POST'])
 def checkout():
@@ -185,4 +176,4 @@ def checkout():
     return jsonify({"change": change, "total_price": total_price, "items": items, "given_amount": given_amount})
 
 if __name__ == "__main__":
-    socketio.run(app, host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000)
