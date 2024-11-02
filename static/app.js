@@ -4,6 +4,27 @@ $(document).ready(function() {
     let currentUser = null;
     let currentUserNfcId = null; // Globale Variable für die aktuelle NFC-ID
 
+    // Funktion, um die Benutzer vom Backend abzurufen
+    function fetchUsers() {
+        fetch('/users') // Angenommener Endpoint zum Abrufen der Benutzer
+            .then(response => response.json())
+            .then(data => {
+                // Dynamisch Benutzer-Buttons erstellen
+                const userSelection = $('#user-selection');
+                userSelection.empty(); // Leere die bestehende Auswahl
+                data.forEach(user => {
+                    userSelection.append(`
+                        <button class="user-btn" data-nfc-id="${user.nfc_id}">
+                            ${user.name}
+                        </button>
+                    `);
+                });
+            })
+            .catch(error => {
+                console.error('Fehler beim Abrufen der Benutzer:', error);
+            });
+    }
+
     // Funktion, um die NFC-ID vom Backend abzurufen
     function fetchActiveNfc() {
         fetch('/active_nfc')
