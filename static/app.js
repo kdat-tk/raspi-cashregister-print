@@ -30,11 +30,11 @@ $(document).ready(function() {
         fetch('/active_nfc')
             .then(response => response.json())
             .then(data => {
-                if (data.active_nfc_id) {
+                if (data.current_user) {
                     // Überprüfe, ob sich die NFC-ID geändert hat
-                    if (data.active_nfc_id !== currentUserNfcId) {
+                    if (data.current_user !== currentUserNfcId) {
                         // Neue NFC-ID erkannt
-                        currentUserNfcId = data.active_nfc_id; // Setze die neue NFC-ID
+                        currentUserNfcId = data.current_user; // Setze die neue NFC-ID
                         handleNfcTagRead(currentUserNfcId); // Aktiviere den Benutzer
                     } else {
                         // NFC-ID hat sich nicht geändert, nur die Buttons aktivieren
