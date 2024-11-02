@@ -111,7 +111,7 @@ def print_receipt(club_name, product_name, price):
 # Funktion zum Auslesen der NFC-ID
 def active_nfc():
     global current_user
-    id, text = reader.read()  # Non-blocking read
+    id, text = reader.read_no_block()  # Non-blocking read
     if id:
         print(f"NFC-Tag erkannt: {id}")
         user_found = next((user for user in users if user["nfc_id"] == str(id)), None)

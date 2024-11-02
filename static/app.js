@@ -27,7 +27,7 @@ $(document).ready(function() {
 
     // Funktion, um die NFC-ID vom Backend abzurufen
     function fetchActiveNfc() {
-        fetch('/active_nfc')
+        fetch('/active_nfc',{ signal: AbortSignal.timeout(300) })
             .then(response => response.json())
             .then(data => {
                 if (data.current_user) {
@@ -202,7 +202,7 @@ $(document).ready(function() {
     }
 
     // Starte die Abfrage der aktiven NFC-ID alle 1 Sekunde
-    setInterval(fetchActiveNfc, 1000);
+    setInterval(fetchActiveNfc, 2000);
 
     // Initialisiere die Anwendung
     initializeApp(); // Setze beim Laden der Seite die Anwendung in den Ausgangszustand
