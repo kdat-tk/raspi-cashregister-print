@@ -14,7 +14,7 @@ $(document).ready(function() {
                 userSelection.empty(); // Leere die bestehende Auswahl
                 data.forEach(user => {
                     userSelection.append(`
-                        <button class="user-btn" data-nfc-id="${user.nfc_id}">
+                        <button class="user-btn" data-nfc-id="${user.nfc_id}" disabled>
                             ${user.name}
                         </button>
                     `);
@@ -30,11 +30,11 @@ $(document).ready(function() {
         fetch('/active_nfc')
             .then(response => response.json())
             .then(data => {
-                if (data.current_user) {
+                if (data.active_nfc_id) {
                     // Überprüfe, ob sich die NFC-ID geändert hat
-                    if (data.current_user !== currentUserNfcId) {
+                    if (data.active_nfc_id !== currentUserNfcId) {
                         // Neue NFC-ID erkannt
-                        currentUserNfcId = data.current_user; // Setze die neue NFC-ID
+                        currentUserNfcId = data.active_nfc_id; // Setze die neue NFC-ID
                         handleNfcTagRead(currentUserNfcId); // Aktiviere den Benutzer
                     } else {
                         // NFC-ID hat sich nicht geändert, nur die Buttons aktivieren
@@ -82,20 +82,11 @@ $(document).ready(function() {
         fetchUsers(); // (Optional) Benutzer beim Start abrufen
     }
 
-    // Benutzer-Auswahl
-    $(document).on('click', '.user-btn', function() {
-        $(".user-btn").removeClass("active");
-        $(this).addClass("active");
-        currentUser = $(this).data("user");
-
-        enableCashRegisterButtons();
-        resetCart();
-    });
-
     // Logout-Button
     $("#logoutBtn").click(function() {
         $(".user-btn").removeClass("active");
         currentUser = null;
+        currentUserNfcId = null; // Leere die NFC-ID beim Logout
         disableCashRegisterButtons();
         resetCart();
     });
