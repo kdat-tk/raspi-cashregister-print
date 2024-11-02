@@ -2,17 +2,7 @@ $(document).ready(function() {
     let cart = [];
     let totalPrice = 0;
     let currentUser = null;
-
-
-    // Funktion zum Abrufen der Benutzer und deren IDs
-    function fetchUsers() {
-        fetch('/users')
-            .then(response => response.json())
-            .then(data => {
-                // Optional: Hier könntest du die Benutzer-Buttons dynamisch hinzufügen, falls nötig
-            })
-            .catch(error => console.error('Fehler beim Abrufen der Benutzer:', error));
-    }
+    let currentUserNfcId = null; // Globale Variable für die aktuelle NFC-ID
 
     // Funktion, um die NFC-ID vom Backend abzurufen
     function fetchActiveNfc() {
@@ -20,7 +10,11 @@ $(document).ready(function() {
             .then(response => response.json())
             .then(data => {
                 if (data.current_user) {
-                    handleNfcTagRead(data.current_user); // Aktiviere den Benutzer
+                    // Überprüfe, ob sich die NFC-ID geändert hat
+                    if (data.current_user !== currentUserNfcId) {
+                        currentUserNfcId = data.current_user; // Setze die neue NFC-ID
+                        handleNfcTagRead(currentUserNfcId); // Aktiviere den Benutzer
+                    }
                 } else {
                     disableAllUsers(); // Deaktiviere alle Benutzer, wenn keiner bekannt ist
                 }
@@ -44,7 +38,6 @@ $(document).ready(function() {
             resetCart(); // Setze den Warenkorb zurück
         }
     }
-
 
     // Funktion, um alle Benutzer zu deaktivieren
     function disableAllUsers() {
