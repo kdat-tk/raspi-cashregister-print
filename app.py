@@ -21,6 +21,8 @@ except serial.SerialException as e:
 # Initialisiere den NFC-Reader
 reader = SimpleMFRC522()
 
+global current_user = None
+
 
 def init_db():
     conn = sqlite3.connect('cash_register.db')
@@ -108,7 +110,7 @@ def print_receipt(club_name, product_name, price):
 
 # Funktion zum Auslesen der NFC-ID
 def active_nfc():
-    current_user = None
+    global current_user
     id, text = reader.read()  # Non-blocking read
     if id:
         print(f"NFC-Tag erkannt: {id}")
