@@ -21,8 +21,6 @@ except serial.SerialException as e:
 # Initialisiere den NFC-Reader
 reader = SimpleMFRC522()
 
-# Variable, um den aktiven Benutzer zu verfolgen
-current_user = None
 
 def init_db():
     conn = sqlite3.connect('cash_register.db')
@@ -110,8 +108,8 @@ def print_receipt(club_name, product_name, price):
 
 # Funktion zum Auslesen der NFC-ID
 def active_nfc():
-    global current_user
-    id, text = reader.read_no_block()  # Non-blocking read
+    current_user = None
+    id, text = reader.read()  # Non-blocking read
     if id:
         print(f"NFC-Tag erkannt: {id}")
         user_found = next((user for user in users if user["nfc_id"] == str(id)), None)
