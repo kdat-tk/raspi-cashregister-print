@@ -185,4 +185,4 @@ def checkout():
     return jsonify({"change": change, "total_price": total_price, "items": items, "given_amount": given_amount})
 
 if __name__ == "__main__":
-    socketio.run(host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=5000)
