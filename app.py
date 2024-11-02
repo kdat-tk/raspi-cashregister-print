@@ -113,7 +113,6 @@ def read_nfc():
     global current_user
     while True:
         try:
-            time.sleep(0.5)
             #print("Warte auf NFC-Tag...")
             id, text = reader.read_no_block()  # NFC-Tag wird hier gelesen
             if id:
@@ -130,6 +129,7 @@ def read_nfc():
                 print("Kein Tag")
                 current_user = None
             socketio.emit('user_changed', {'current_user': current_user})
+            time.sleep(0.5)
         except Exception as e:
             print(f"Fehler beim Lesen des NFC-Tags: {e}")
 
