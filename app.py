@@ -127,6 +127,7 @@ def read_nfc():
                 print("Kein Tag erkannt.")
 
         except Exception as e:
+            GPIO.cleanup()
             print(f"Fehler beim Lesen des NFC-Tags: {e}")
 
 
