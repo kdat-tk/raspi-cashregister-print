@@ -123,7 +123,7 @@ def read_nfc():
                 timer.start()  # Starte den Timer
 
             else:
-                #print("Kein Tag erkannt.")
+                print("Kein Tag erkannt.")
 
         except Exception as e:
             print(f"Fehler beim Lesen des NFC-Tags: {e}")
