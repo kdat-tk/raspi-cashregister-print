@@ -60,7 +60,7 @@ $(document).ready(function() {
         const button = $(`.user-btn[data-nfc-id="${nfcId}"]`);
         if (button.length) {
             button.addClass("active"); // Aktiviere den Button für den aktuellen Benutzer
-            currentUser = button.innerText; // Setze den aktuellen Benutzer basierend auf dem Button
+            currentUser = button[0].innerText; // Setze den aktuellen Benutzer basierend auf dem Button
             enableCashRegisterButtons(); // Aktiviere die Kassen-Buttons
             resetCart(); // Setze den Warenkorb zurück
         } else {
