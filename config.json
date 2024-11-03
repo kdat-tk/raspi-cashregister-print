@@ -1,0 +1,28 @@
+{
+    "club_name": "Oldtimerfreunde Forst e.V.",
+    "products": [
+        {"name": "Produkt 1", "price": 2.50, "bondruck": true},
+        {"name": "Produkt 2", "price": 3.00, "bondruck": true},
+        {"name": "Produkt 3", "price": 4.00, "bondruck": true},
+        {"name": "Produkt 4", "price": 5.50, "bondruck": true},
+        {"name": "Produkt 5", "price": 6.00, "bondruck": true},
+        {"name": "Produkt 6", "price": 7.50, "bondruck": true},
+        {"name": "Produkt 7", "price": 8.00, "bondruck": true},
+        {"name": "Produkt 8", "price": 9.50, "bondruck": true},
+        {"name": "Produkt 9", "price": 10.00, "bondruck": true},
+        {"name": "Produkt 10", "price": 11.50, "bondruck": true},
+        {"name": "Produkt 11", "price": 12.00, "bondruck": true},
+        {"name": "Produkt 12", "price": 13.50, "bondruck": true},
+        {"name": "Produkt 13", "price": 14.00, "bondruck": true},
+        {"name": "Produkt 14", "price": 15.50, "bondruck": true},
+        {"name": "Pfand Tasse zurück", "price": -2.50, "bondruck": false},
+        {"name": "Pfand Geschirr zurück", "price": -4.50, "bondruck": false}
+    ],
+    "users": [
+        {"name": "Admin", "nfc_id": "27460418333"},
+        {"name": "Bedienung1", "nfc_id": "924731663536"},
+        {"name": "Bedienung2", "nfc_id": "717432579225"},
+        {"name": "Bedienung3", "nfc_id": "512599483397"},
+        {"name": "Bedienung4", "nfc_id": "513488676050"}
+    ]
+}

@@ -10,6 +10,15 @@ import threading
 
 app = Flask(__name__)
 
+# Konfiguration laden
+with open('config.json') as config_file:
+    config = json.load(config_file)
+
+# Zugriff auf die Konfiguration
+club_name = config["club_name"]
+products = config["products"]
+users = config["users"]
+
 # Initialisiere das serielle Interface beim Start der App
 try:
     ser = serial.Serial('/dev/ttyUSB2', 38400, timeout=1, dsrdtr=True)
@@ -50,36 +59,6 @@ def init_db():
 
 init_db()
 
-# === Konfigurationsbereich für Produkte ===
-products = [
-    {"name": "Produkt 1", "price": 2.50, "bondruck": True},
-    {"name": "Produkt 2", "price": 3.00, "bondruck": True},
-    {"name": "Produkt 3", "price": 4.00, "bondruck": True},
-    {"name": "Produkt 4", "price": 5.50, "bondruck": True},
-    {"name": "Produkt 5", "price": 6.00, "bondruck": True},
-    {"name": "Produkt 6", "price": 7.50, "bondruck": True},
-    {"name": "Produkt 7", "price": 8.00, "bondruck": True},
-    {"name": "Produkt 8", "price": 9.50, "bondruck": True},
-    {"name": "Produkt 9", "price": 10.00, "bondruck": True},
-    {"name": "Produkt 10", "price": 11.50, "bondruck": True},
-    {"name": "Produkt 11", "price": 12.00, "bondruck": True},
-    {"name": "Produkt 12", "price": 13.50, "bondruck": True},
-    {"name": "Produkt 13", "price": 14.00, "bondruck": True},
-    {"name": "Produkt 14", "price": 15.50, "bondruck": True},
-    {"name": "Pfand Tasse zurück", "price": -2.50, "bondruck": False},
-    {"name": "Pfand Geschirr zurück", "price": -4.50, "bondruck": False}
-]
-# === Ende des Konfigurationsbereichs ===
-
-club_name = "Oldtimerfreunde Forst e.V."
-
-users = [
-    {"name": "Admin", "nfc_id": "27460418333"},
-    {"name": "Bedienung1", "nfc_id": "nfc_bedienung1_id"},
-    {"name": "Bedienung2", "nfc_id": "nfc_bedienung2_id"},
-    {"name": "Bedienung3", "nfc_id": "nfc_bedienung3_id"},
-    {"name": "Bedienung4", "nfc_id": "nfc_bedienung4_id"},
-]
 
 @app.route('/')
 def index():
@@ -89,8 +68,10 @@ def index():
 def print_receipt(club_name, product_name, price):
     if ser is not None and ser.is_open:
         try:
+            ser.write(b'\x1B\x45\x01')  # ESC E 1 (Fettdruck aktivieren)
             ser.write(b'\x1B\x61\x01')  # ESC a 1 (zentrierte Ausrichtung)
             ser.write(f"{club_name}\n".encode('ascii'))
+            ser.write(b'\x1B\x45\x00')  # ESC E 0 (Fettdruck deaktivieren)
             ser.write(b'\x1B\x61\x00')  # ESC a 0 (linksbündige Ausrichtung)
             ser.write(b'\n')
             ser.write(b'\x1D\x21\x11')  # GS ! 17 (doppelte Höhe und Breite)
@@ -114,25 +95,25 @@ def read_nfc():
     global active_nfc_id, timer
     while True:
         try:
-            print("Warte auf NFC-Tag...")  # Informiere, dass auf ein Tag gewartet wird
+            #print("Warte auf NFC-Tag...")  # Informiere, dass auf ein Tag gewartet wird
 
             start_time = time.time()  # Starte den Timer
             id, text = reader.read()  # Blockiert, bis ein Tag gelesen wird
 
-            print(f"NFC-Tag erkannt: {id}")
+            #print(f"NFC-Tag erkannt: {id}")
             if id:
                 # Setze die aktive NFC-ID
                 active_nfc_id = str(id)
-                print(f"Aktive NFC-ID gesetzt: {active_nfc_id}")
+                #print(f"Aktive NFC-ID gesetzt: {active_nfc_id}")
 
                 # Benutzersuche basierend auf der NFC-ID
                 user_found = next((user for user in users if user["nfc_id"] == active_nfc_id), None)
                 if user_found:
                     global current_user
                     current_user = user_found["name"]  # Setze den aktuellen Benutzer auf den gefundenen Namen
-                    print(f"{current_user} aktiviert.")
+                    #print(f"{current_user} aktiviert.")
                 else:
-                    print("Unbekannter Benutzer.")
+                    #print("Unbekannter Benutzer.")
                     current_user = None
 
                 # Timer zurücksetzen, wenn eine ID gelesen wird
@@ -142,7 +123,7 @@ def read_nfc():
                 timer.start()  # Starte den Timer
 
             else:
-                print("Kein Tag erkannt.")
+                #print("Kein Tag erkannt.")
 
         except Exception as e:
             print(f"Fehler beim Lesen des NFC-Tags: {e}")
@@ -151,7 +132,7 @@ def read_nfc():
 def reset_active_nfc_id():
     global active_nfc_id
     active_nfc_id = None
-    print("Aktive NFC-ID wurde auf None gesetzt.")
+    #print("Aktive NFC-ID wurde auf None gesetzt.")
 
 
 # Starte den NFC-Lesethread
