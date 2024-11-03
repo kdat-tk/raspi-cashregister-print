@@ -8,6 +8,7 @@ import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
 import threading
 import json
+GPIO.setwarnings(False)
 
 app = Flask(__name__)
 
