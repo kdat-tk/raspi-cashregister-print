@@ -7,6 +7,7 @@ import time
 import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
 import threading
+import json
 
 app = Flask(__name__)
 
