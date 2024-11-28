@@ -23,7 +23,7 @@ users = config["users"]
 
 # Initialisiere das serielle Interface beim Start der App
 try:
-    ser = serial.Serial('/dev/ttyUSB2', 38400, timeout=1, dsrdtr=True)
+    ser = serial.Serial('/dev/ttyUSB0', 38400, timeout=1, dsrdtr=True)
     print("Serielles Interface erfolgreich geöffnet.")
 except serial.SerialException as e:
     ser = None
